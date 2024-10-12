@@ -15,6 +15,12 @@ const val API_KEY = "rest.client.api_key"
 private const val MAX_RETRIES = "rest.client.retries"
 const val QUERY_PARAMS = "rest.client.query_params"
 
+/**
+ * REST client for interacting with the Weather API.
+ *
+ * @property config The application configuration containing API details.
+ * @property client The HTTP client used for making requests, with built-in retry functionality.
+ */
 class WeatherApiRestClient(private val config: ApplicationConfig,private val client: HttpClient = HttpClient {
     install(HttpRequestRetry) {
         retryOnServerErrors(maxRetries = config.property(MAX_RETRIES).getString().toInt())
@@ -22,6 +28,13 @@ class WeatherApiRestClient(private val config: ApplicationConfig,private val cli
 
     private val queryParams = config.configList(QUERY_PARAMS)
 
+    /**
+     * Retrieves the weather information for a specific location.
+     *
+     * @param location The location for which to retrieve the weather data.
+     * @return A [WeatherResponse] object containing the weather information.
+     * @throws Exception if there is an error during the API call.
+     */
     suspend fun getWeatherByLocation(location: String): WeatherResponse {
         val response: HttpResponse = client.get(config.property(BASE_URL).getString()){
 
