@@ -17,7 +17,7 @@ const val API_KEY = "rest.client.api_key"
 const val MAX_RETRIES = "rest.client.retries"
 const val QUERY_PARAMS = "rest.client.query_params"
 
-private const val SIMULATION_ERROR_PROBABILITY = 20
+private const val SIMULATION_ERROR_PROBABILITY = 100
 
 /**
  * REST client for interacting with the Weather API.
@@ -40,6 +40,9 @@ class WeatherApiRestClient(private val config: ApplicationConfig,private val cli
      * @throws Exception if there is an error during the API call.
      */
     suspend fun getWeatherByLocation(location: String): WeatherResponse {
+
+        simulateError()
+
         val response = client.get(config.property(BASE_URL).getString()){
 
             // Delay of 500 milliseconds between API calls is implemented to comply with the API's rate limit,
