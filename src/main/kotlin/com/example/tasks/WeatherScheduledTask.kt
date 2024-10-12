@@ -56,7 +56,7 @@ class WeatherScheduledTask(private val config: ApplicationConfig,
 
     override fun getPeriod(): Long = config.property("tasks.weather.period").getString().toLong()
 
-    suspend fun <T> retry(times: Int, block: suspend () -> T): T {
+    private suspend fun <T> retry(times: Int, block: suspend () -> T): T {
         var lastException: Exception? = null
         repeat(times) { attempt ->
             try {
