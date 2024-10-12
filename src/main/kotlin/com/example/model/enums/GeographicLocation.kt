@@ -1,6 +1,6 @@
 package com.example.model.enums
 
-enum class GeographicLocation(val latitude: Double, val longitude: Double) {
+enum class GeographicLocation(private val latitude: Double, private val longitude: Double) {
     CL(-33.4489, -70.6693),
     CH(47.3769, 8.5417),
     NZ(-36.8485, 174.7633),
