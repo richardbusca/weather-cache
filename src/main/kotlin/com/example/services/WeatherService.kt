@@ -4,7 +4,10 @@ import com.example.mappers.WeatherMapper
 import com.example.model.dto.WeatherValues
 import com.example.model.enums.GeographicLocation
 import com.example.services.redis.RedisService
+import com.example.services.rest.MAX_RETRIES
 import com.example.services.rest.WeatherApiRestClient
+import io.ktor.server.config.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 
 /**
@@ -13,9 +16,13 @@ import kotlinx.serialization.json.Json
  * @property weatherApiRestClient The REST client used to communicate with the Weather API.
  * @property redisService The service used to interact with Redis for caching weather data.
  * @property weatherMapper The mapper for converting API responses into usable weather values.
+ * @property config The application configuration containing Service details.
  */
 class WeatherService(private val weatherApiRestClient: WeatherApiRestClient,
-                     private val redisService: RedisService, private val weatherMapper: WeatherMapper = WeatherMapper()) {
+                     private val redisService: RedisService,
+                     private val config: ApplicationConfig,
+                     private val weatherMapper: WeatherMapper = WeatherMapper()
+                     ) {
 
     /**
      * Retrieves weather information for a specific geographic location.
@@ -26,7 +33,10 @@ class WeatherService(private val weatherApiRestClient: WeatherApiRestClient,
      */
     suspend fun getWeatherByLocation(location: GeographicLocation): WeatherValues? {
         try {
-            return weatherMapper.mapToWeatherValues(weatherApiRestClient.getWeatherByLocation(location.getLocation()))
+            val response = retry(config.property(MAX_RETRIES).getString().toInt()) {
+                weatherApiRestClient.getWeatherByLocation(location.getLocation())
+            }
+            return weatherMapper.mapToWeatherValues(response)
         } catch (e: RuntimeException){
             e.printStackTrace()
             return null
@@ -49,4 +59,18 @@ class WeatherService(private val weatherApiRestClient: WeatherApiRestClient,
             return null
         }
     }
+    private suspend fun <T> retry(times: Int, block: suspend () -> T): T {
+        var lastException: Exception? = null
+        repeat(times) { attempt ->
+            try {
+                return block()
+            } catch (e: Exception) {
+                lastException = e
+                println("Attempt ${attempt + 1} failed: ${e.message}. Retrying...")
+                delay(500)
+            }
+        }
+        throw lastException ?: Exception("Retry limit exceeded")
+    }
+
 }

@@ -30,6 +30,7 @@ class WeatherScheduledTaskTest {
 
         every { config.property("tasks.weather.delay").getString() } returns "1000"
         every { config.property("tasks.weather.period").getString() } returns "5000"
+        every { config.property("rest.client.retries").getString() } returns "3"
         coEvery { weatherService.getWeatherByLocation(any()) } returns mockWeatherValues
 
         // act

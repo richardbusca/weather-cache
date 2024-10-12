@@ -41,7 +41,7 @@ class WeatherApiRestClientTest {
         every { mockConfig.property(TIMEOUT).getString() } returns "5000"
         every { mockConfig.property(API_KEY).getString() } returns "fake-api-key"
         every { mockConfig.configList(QUERY_PARAMS) } returns emptyList()
-        val weatherClient = WeatherApiRestClient(mockConfig, mockClient)
+        val weatherClient = WeatherApiRestClient(mockConfig, mockClient, 0)
 
         // act
         val result : WeatherResponse = weatherClient.getWeatherByLocation("valid-location")
@@ -66,7 +66,7 @@ class WeatherApiRestClientTest {
         every { mockConfig.configList(QUERY_PARAMS) } returns emptyList()
 
         // act
-        val weatherClient = WeatherApiRestClient(mockConfig, mockClient)
+        val weatherClient = WeatherApiRestClient(mockConfig, mockClient, 0)
 
         // assertions
         assertFailsWith<RuntimeException> {

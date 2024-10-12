@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
 fun Application.module() {
     installFeatures()
     val redisConfig = createRedisConfig(environment.config)
-    val weatherService = createWeatherService(redisConfig)
+    val weatherService = createWeatherService(redisConfig, environment.config)
     configureRouting(weatherService)
     registerAllTasks(environment.config, weatherService, redisConfig)
     scheduleAllTasks()
@@ -40,8 +40,8 @@ private fun Application.installFeatures() {
     }
 }
 
-private fun Application.createWeatherService(redisService: RedisService): WeatherService {
-    return WeatherService(WeatherApiRestClient(environment.config), redisService)
+private fun Application.createWeatherService(redisService: RedisService, config: ApplicationConfig): WeatherService {
+    return WeatherService(WeatherApiRestClient(environment.config), redisService, config)
 }
 
 private fun scheduleAllTasks() {

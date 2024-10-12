@@ -17,8 +17,6 @@ const val API_KEY = "rest.client.api_key"
 const val MAX_RETRIES = "rest.client.retries"
 const val QUERY_PARAMS = "rest.client.query_params"
 
-private const val SIMULATION_ERROR_PROBABILITY = 100
-
 /**
  * REST client for interacting with the Weather API.
  *
@@ -28,7 +26,7 @@ private const val SIMULATION_ERROR_PROBABILITY = 100
 class WeatherApiRestClient(private val config: ApplicationConfig,private val client: HttpClient = HttpClient {
     install(HttpRequestRetry) {
         retryOnServerErrors(maxRetries = config.property(MAX_RETRIES).getString().toInt())
-        exponentialDelay() }}){
+        exponentialDelay() }}, private val simulationErrorProbability: Int = 20){
 
     private val queryParams = config.configList(QUERY_PARAMS)
 
@@ -72,7 +70,7 @@ class WeatherApiRestClient(private val config: ApplicationConfig,private val cli
      */
     private fun simulateError() {
         val randomValue = Random.nextInt(1, 101)
-        val errorThreshold = SIMULATION_ERROR_PROBABILITY
+        val errorThreshold = simulationErrorProbability
         if (randomValue <= errorThreshold) {
             throw RuntimeException("Simulated error: Random value $randomValue triggered an exception.")
         }

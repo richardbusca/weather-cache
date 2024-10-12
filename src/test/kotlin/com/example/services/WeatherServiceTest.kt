@@ -9,6 +9,7 @@ import com.example.services.rest.WeatherApiRestClient
 import com.example.utils.DummyFactory.WEATHER_RESPONSE
 import com.example.utils.DummyFactory.WEATHER_VALUES
 import com.example.utils.DummyFactory.readJsonFile
+import io.ktor.server.config.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -23,13 +24,15 @@ class WeatherServiceTest {
     private lateinit var redisService: RedisService
     private lateinit var weatherService: WeatherService
     private lateinit var weatherMapper: WeatherMapper
+    private lateinit var config: ApplicationConfig
 
     @Before
     fun setUp() {
         weatherApiRestClient = mockk()
         redisService = mockk()
         weatherMapper = mockk()
-        weatherService = WeatherService(weatherApiRestClient, redisService)
+        config = mockk()
+        weatherService = WeatherService(weatherApiRestClient, redisService, config)
     }
 
     @Test
@@ -41,6 +44,7 @@ class WeatherServiceTest {
 
         coEvery { weatherApiRestClient.getWeatherByLocation(location.getLocation()) } returns apiResponse
         every { weatherMapper.mapToWeatherValues(apiResponse) } returns expectedWeatherValues
+        every { config.property(any()).getString() } returns "3"
 
         // Act
         val result = weatherService.getWeatherByLocation(location)
@@ -56,13 +60,14 @@ class WeatherServiceTest {
         val location = GeographicLocation.USA
 
         coEvery { weatherApiRestClient.getWeatherByLocation(location.getLocation()) } throws RuntimeException("API error")
+        every { config.property(any()).getString() } returns "3"
 
         // Act
         val result = weatherService.getWeatherByLocation(location)
 
         // Assert
         assertNull(result)
-        coVerify { weatherApiRestClient.getWeatherByLocation(location.getLocation()) }
+        coVerify(exactly = 3) { weatherApiRestClient.getWeatherByLocation(location.getLocation()) }
     }
 
     @Test
