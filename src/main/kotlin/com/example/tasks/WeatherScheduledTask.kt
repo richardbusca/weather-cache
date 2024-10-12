@@ -1,4 +1,4 @@
-package com.example.taks
+package com.example.tasks
 
 import com.example.model.enums.GeographicLocation
 import com.example.services.WeatherService
@@ -9,16 +9,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.Objects
 
 class WeatherScheduledTask(private val config: ApplicationConfig,
                            private val weatherService: WeatherService,
                            private val redisService: RedisService) : ScheduledTask() {
+
     override fun execute() {
+        println("Initiating cache refresh task")
         CoroutineScope(Dispatchers.Default).launch {
             GeographicLocation.entries.forEach { location ->
                 try {
+                    println("Refreshing cache for $location")
                     val weatherResponse = weatherService.getWeatherByLocation(location)
-                    redisService.set(location.name, Json.encodeToString(weatherResponse))
+                    if (Objects.nonNull(weatherResponse)) {
+                        redisService.set(location.name, Json.encodeToString(weatherResponse))
+                    }
                 } catch (e: RuntimeException){
                     println("Error fetching weather for ${location.getLocation()}: ${e.message}")
                 }

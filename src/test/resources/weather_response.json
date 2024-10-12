@@ -1,0 +1,21 @@
+{
+  "data": {
+    "timelines": [
+      {
+        "timestep": "current",
+        "endTime": "2024-10-12T17:15:00Z",
+        "startTime": "2024-10-12T17:15:00Z",
+        "intervals": [
+          {
+            "startTime": "2024-10-12T17:15:00Z",
+            "values": {
+              "precipitationIntensity": 0,
+              "temperature": 25,
+              "windSpeed": 6.31
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

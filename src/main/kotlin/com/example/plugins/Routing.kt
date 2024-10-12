@@ -3,7 +3,6 @@ package com.example.plugins
 import com.example.model.dto.WeatherValues
 import com.example.model.enums.GeographicLocation
 import com.example.services.WeatherService
-import com.example.services.rest.WeatherApiRestClient
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*

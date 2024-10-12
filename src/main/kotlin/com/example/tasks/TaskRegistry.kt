@@ -1,4 +1,4 @@
-package com.example.taks
+package com.example.tasks
 
 object TaskRegistry {
     private val tasks = mutableListOf<ScheduledTask>()

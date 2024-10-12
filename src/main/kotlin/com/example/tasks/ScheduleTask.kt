@@ -1,4 +1,4 @@
-package com.example
+package com.example.tasks
 
 import java.util.Timer
 import java.util.TimerTask

@@ -4,8 +4,9 @@ import com.example.plugins.*
 import com.example.services.WeatherService
 import com.example.services.redis.RedisService
 import com.example.services.rest.WeatherApiRestClient
-import com.example.taks.TaskRegistry
-import com.example.taks.WeatherScheduledTask
+import com.example.tasks.TaskRegistry
+import com.example.tasks.WeatherScheduledTask
+import com.example.tasks.scheduleTask
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.config.*

@@ -9,20 +9,16 @@ import io.ktor.server.config.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 
-private const val TIMEOUT = "rest.client.timeout"
-private const val BASE_URL = "rest.client.base_url"
-private const val API_KEY = "rest.client.api_key"
+const val TIMEOUT = "rest.client.timeout"
+const val BASE_URL = "rest.client.base_url"
+const val API_KEY = "rest.client.api_key"
 private const val MAX_RETRIES = "rest.client.retries"
-private const val QUERY_PARAMS = "rest.client.query_params"
+const val QUERY_PARAMS = "rest.client.query_params"
 
-class WeatherApiRestClient(private val config: ApplicationConfig) {
-
-    private val client = HttpClient {
-        install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = config.property(MAX_RETRIES).getString().toInt())
-            exponentialDelay()
-        }
-    }
+class WeatherApiRestClient(private val config: ApplicationConfig,private val client: HttpClient = HttpClient {
+    install(HttpRequestRetry) {
+        retryOnServerErrors(maxRetries = config.property(MAX_RETRIES).getString().toInt())
+        exponentialDelay() }}){
 
     private val queryParams = config.configList(QUERY_PARAMS)
 
@@ -36,6 +32,7 @@ class WeatherApiRestClient(private val config: ApplicationConfig) {
             timeout {
                 requestTimeoutMillis = config.property(TIMEOUT).getString().toLong()
             }
+
             parameter("location", location)
             parameter("apikey", config.property(API_KEY).getString())
             queryParams.forEach { paramConfig ->

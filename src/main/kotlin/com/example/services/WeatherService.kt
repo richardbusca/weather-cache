@@ -8,14 +8,24 @@ import com.example.services.rest.WeatherApiRestClient
 import kotlinx.serialization.json.Json
 
 class WeatherService(private val weatherApiRestClient: WeatherApiRestClient,
-                     private val redisService: RedisService) {
-    private val weatherMapper = WeatherMapper()
+                     private val redisService: RedisService, private val weatherMapper: WeatherMapper = WeatherMapper()) {
 
     suspend fun getWeatherByLocation(location: GeographicLocation): WeatherValues? {
-        return weatherMapper.mapToWeatherValues(weatherApiRestClient.getWeatherByLocation(location.getLocation()))
+        try {
+            return weatherMapper.mapToWeatherValues(weatherApiRestClient.getWeatherByLocation(location.getLocation()))
+        } catch (e: RuntimeException){
+            e.printStackTrace()
+            return null
+        }
     }
 
     fun getWeatherByLocationFromCache(location: GeographicLocation): WeatherValues? {
-        return Json.decodeFromString(redisService.get(location.name))
+        try {
+            val value = redisService.get(location.name)
+            return value?.let { Json.decodeFromString<WeatherValues>(it) }
+        } catch (e: RuntimeException){
+            e.printStackTrace()
+            return null
+        }
     }
 }
