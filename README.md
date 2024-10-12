@@ -1,10 +1,10 @@
 # Documentación de la API de Meteorología
 
 ## Descripción General
-La API de Meteorología está diseñada para recuperar y almacenar datos meteorológicos para ubicaciones geográficas predefinidas en una base de datos Redis. La API obtiene información meteorológica cada 10 minutos de un servicio meteorológico externo y proporciona una interfaz RESTful para acceder a estos datos.
+La API de Meteorología está diseñada para recuperar y almacenar datos meteorológicos para ubicaciones geográficas predefinidas en una base de datos Redis. La API obtiene información meteorológica cada 5 minutos de un servicio meteorológico externo y proporciona una interfaz RESTful para acceder a estos datos.
 
 ## Características
-- **Recuperación Programada de Datos**: Cada 10 minutos, la API obtiene datos meteorológicos para todas las ubicaciones registradas y los almacena en Redis.
+- **Recuperación Programada de Datos**: Cada 5 minutos, la API obtiene datos meteorológicos para todas las ubicaciones registradas y los almacena en Redis.
 - **Acceso a Datos**: Los usuarios pueden recuperar la información meteorológica para una ubicación específica a través de una solicitud GET.
 
 ## Arquitectura
@@ -51,11 +51,11 @@ GET /weather/USA
 ```
 
 ## Programación de Tareas
-Los datos meteorológicos se actualizan cada 10 minutos. La programación se gestiona a través de la clase `WeatherScheduledTask`, que implementa la clase abstracta `ScheduledTask`.
+Los datos meteorológicos se actualizan cada 5 minutos. La programación se gestiona a través de la clase `WeatherScheduledTask`, que implementa la clase abstracta `ScheduledTask`.
 
 ### Configuración
 - **Retraso Inicial**: Configurado a través de la configuración de la aplicación para especificar cuánto tiempo esperar antes de la primera ejecución de la tarea.
-- **Periodo de Ejecución**: Configurado para repetirse cada 10 minutos (600,000 milisegundos).
+- **Periodo de Ejecución**: Configurado para repetirse cada 5 minutos (600,000 milisegundos).
 
 ### Manejo de Errores
 La aplicación maneja excepciones en tiempo de ejecución durante la obtención de datos y registra mensajes de error para la solución de problemas.
