@@ -9,8 +9,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Application.configureRouting(weatherApiRestClient: WeatherApiRestClient) {
-    val weatherService = WeatherService(weatherApiRestClient)
+fun Application.configureRouting(weatherService: WeatherService) {
     routing {
         weatherRoute(weatherService)
     }
@@ -21,7 +20,7 @@ private fun Route.weatherRoute(weatherService: WeatherService) {
         val locationParam = call.parameters["location"]
         val location = validateLocation(call, locationParam) ?: return@get
 
-        val weatherValues: WeatherValues = weatherService.getWeatherByLocation(location)
+        val weatherValues: WeatherValues = weatherService.getWeatherByLocationFromCache(location)
             ?: return@get call.respondText("Weather data not found", status = HttpStatusCode.NotFound)
 
         call.respond(HttpStatusCode.OK, weatherValues)

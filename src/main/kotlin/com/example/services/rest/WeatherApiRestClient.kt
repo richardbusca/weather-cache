@@ -5,33 +5,46 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.server.config.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 
+private const val TIMEOUT = "rest.client.timeout"
+private const val BASE_URL = "rest.client.base_url"
+private const val API_KEY = "rest.client.api_key"
+private const val MAX_RETRIES = "rest.client.retries"
+private const val QUERY_PARAMS = "rest.client.query_params"
 
-private const val FIELDS = "temperature,precipitationIntensity,windSpeed"
-private const val TIMESTEPS = "current"
-private const val UNITS = "metric"
-
-class WeatherApiRestClient(private val baseUrl: String, private val apiKey: String, private val retries: Int, private val timeout: Long) {
+class WeatherApiRestClient(private val config: ApplicationConfig) {
 
     private val client = HttpClient {
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = retries)
+            retryOnServerErrors(maxRetries = config.property(MAX_RETRIES).getString().toInt())
             exponentialDelay()
         }
     }
 
+    private val queryParams = config.configList(QUERY_PARAMS)
+
     suspend fun getWeatherByLocation(location: String): WeatherResponse {
-        val response: HttpResponse = client.get(baseUrl){
+        val response: HttpResponse = client.get(config.property(BASE_URL).getString()){
+
+            // Delay of 500 milliseconds between API calls is implemented to comply with the API's rate limit,
+            // which allows a maximum of 3 requests per second.
+            delay(500)
+
             timeout {
-                requestTimeoutMillis = timeout
+                requestTimeoutMillis = config.property(TIMEOUT).getString().toLong()
             }
             parameter("location", location)
-            parameter("fields", FIELDS)
-            parameter("timesteps", TIMESTEPS)
-            parameter("units", UNITS)
-            parameter("apikey", apiKey)
+            parameter("apikey", config.property(API_KEY).getString())
+            queryParams.forEach { paramConfig ->
+                val name = paramConfig.property("name").getString()
+                val value = paramConfig.property("value").getString()
+                parameter(name, value)
+            }
         }
+
         return Json.decodeFromString(response.bodyAsText())
     }
 }

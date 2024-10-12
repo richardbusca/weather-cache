@@ -5,10 +5,10 @@ ktor:
   deployment:
     port: 8080
 
-scheduled:
-  task:
-    interval: 2000
+tasks:
+  weather:
     delay: 2000
+    period: 10000
 
 rest:
   client:
@@ -16,3 +16,14 @@ rest:
     api_key: "aJ89wn50v2Thr3djeqmh6vstzsmn899N"
     timeout: 5000
     retries: 3
+    query_params:
+      - name: "fields"
+        value: "temperature,precipitationIntensity,windSpeed"
+      - name: "timesteps"
+        value: "current"
+      - name: "units"
+        value: "metric"
+
+redis:
+  server:
+    url: "redis://localhost:6379"
